@@ -1,0 +1,41 @@
+#h1{
+    margin:auto;
+    background-color: blue;
+    text-align: center;
+}
+#your-message{
+    float: right;
+    background-color: white;
+    clear: both;
+    width: 24%;
+    padding: 10px;
+    margin: 20px;
+    border: 2px solid black;
+    border-radius: 10px;
+}
+#others-message{
+    float:left;
+    background-color: grey;
+    clear:both;
+    width: 24%;
+    padding: 10px;
+    margin: 20px;
+    border: 2px solid black;
+    border-radius: 10px;
+}
+.container{
+    margin:auto;
+    height:80vh;
+    background-color: yellow;
+}
+#send{
+    display:block;
+    margin:auto;
+    width:92%;
+    text-align:center;
+}
+#inpsend{
+    width: 92%;
+    margin: 10px;
+    padding: 5px;
+}
