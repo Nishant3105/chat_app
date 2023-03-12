@@ -22,7 +22,7 @@ exports.addUser=async (req,res,next)=>{
                    phone,
                    password:hash
                })
-               res.status(201).json('User created successfully!')
+               res.status(201).json({message:'User created successfully!'})
             })
         }
     }

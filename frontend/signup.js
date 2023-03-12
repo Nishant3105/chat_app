@@ -14,6 +14,9 @@ async function adduser(e){
         password
     }
 
-    await axios.post('http://localhost:3000/user/signup', userDetails)
+    const res=await axios.post('http://localhost:3000/user/signup', userDetails)
+    if(res.status<400){
+        alert(res.data.message)
+    }
 
 }
