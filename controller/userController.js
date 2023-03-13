@@ -5,12 +5,11 @@ const jwt=require('jsonwebtoken')
 const User=require('../model/user')
 
 function generateAccessToken(id){
-    return jwt.sign({userID:id},'thisisasecretkeyforyologin')
+    return jwt.sign({userID:id},process.env.TOKEN_SECRET)
 }
 
 exports.addUser=async (req,res,next)=>{
     try{
-    console.log(req.body)
        const {name, email, phone, password} =req.body
        if(name=="" || email=="" || phone=="" || password==""){
            res.status(500).json({message: 'please fill all the details'})

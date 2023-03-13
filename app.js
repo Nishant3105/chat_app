@@ -8,6 +8,11 @@ dotenv.config();
 
 const sequelize=require('./util/database')
 const userRoutes=require('./routes/user')
+const chatRoutes=require('./routes/chat')
+
+const User=require('./model/user')
+const Chat=require('./model/chat')
+
 const app=express()
 
 app.use(cors(
@@ -18,6 +23,11 @@ app.use(cors(
 app.use(bodyParser.json())
 
 app.use('/user',userRoutes)
+
+app.use('/chat',chatRoutes)
+
+User.hasMany(Chat)
+Chat.belongsTo(User)
 
 sequelize
  .sync()
