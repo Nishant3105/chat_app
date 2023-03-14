@@ -3,7 +3,7 @@
     background-color: blue;
     text-align: center;
 }
-#your-message{
+.your-message{
     float: right;
     background-color: white;
     clear: both;
@@ -13,7 +13,7 @@
     border: 2px solid black;
     border-radius: 10px;
 }
-#others-message{
+.others-message{
     float:left;
     background-color: grey;
     clear:both;
@@ -27,6 +27,9 @@
     margin:auto;
     height:80vh;
     background-color: yellow;
+    padding:23px;
+    overflow-y: auto;
+    /* margin-bottom:13px; */
 }
 #send{
     display:block;
