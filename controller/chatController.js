@@ -1,5 +1,6 @@
 const Chat=require('../model/chat')
 const sequelize=require('../util/database')
+const {Op}=require('sequelize')
 
 exports.postMessage=async (req,res,next)=>{
     try{
@@ -19,8 +20,12 @@ exports.postMessage=async (req,res,next)=>{
 
 exports.getMessage=async (req,res,next)=>{
     try{
-       const msg=await Chat.findAll({
-        attributes: ['name','message'],
+        const Lastid=req.params.id
+        const msg=await Chat.findAll({
+        attributes: ['id','name','message'],
+        where: {
+            id:{  [Op.gt]: Lastid }
+        }
        })
        res.status(200).json(msg)
     }

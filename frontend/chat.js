@@ -20,16 +20,39 @@ function showOnScreen(name,message){
     parentNode.innerHTML=parentNode.innerHTML+childHTML
 }
 
+//setInterval(()=>getMessages,1000)
+
 window.addEventListener('DOMContentLoaded',getMessages)
 
 async function getMessages(){
     try{
        const token=localStorage.getItem('token')
-       const res=await axios.get('http://localhost:3000/chat/getmsg',{headers: {'Authorization':token}})
+       let lastmsgid=localStorage.getItem('lastmsgid')?localStorage.getItem('lastmsgid'):1;
+
+       const res=await axios.get(`http://localhost:3000/chat/getmsg/${lastmsgid}`,{headers: {'Authorization':token}})
+       
        console.log(res.data)
-       for(let i=0;i<res.data.length;i++){
-        let name=res.data[i].name
-        let msg=res.data[i].message  
+       if(res.data.length>0){
+           localStorage.setItem('lastmsgid',res.data[res.data.length-1].id)
+        }
+       
+       let existingArray=JSON.parse(localStorage.getItem('message')) || []
+       
+       if(existingArray.length>=10){
+        while(res.data.length>0){
+            console.log(existingArray.shift())
+            res.data.length--
+        }
+       }
+      
+       let mergedArray=existingArray.concat(res.data)
+       
+
+       localStorage.setItem('message',JSON.stringify(mergedArray))
+       
+       for(let i=0;i<mergedArray.length;i++){
+        let name=mergedArray[i].name
+        let msg=mergedArray[i].message  
             showOnScreen(name,msg)
        }
     }

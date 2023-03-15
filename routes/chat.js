@@ -8,6 +8,6 @@ const routes=express.Router()
 
 routes.post('/sendmsg', userauth.authentication, chatController.postMessage)
 
-routes.get('/getmsg', userauth.authentication, chatController.getMessage)
+routes.get('/getmsg/:id', userauth.authentication, chatController.getMessage)
 
 module.exports=routes
