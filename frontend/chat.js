@@ -6,7 +6,8 @@ async function sendMessage(e){
         const message=document.getElementById('inpsend').value
         console.log(message)
         const token=localStorage.getItem('token')
-        const res=await axios.post('http://localhost:3000/chat/sendmsg',{message:message}, {headers: {'Authorization':token}})
+        const gid=localStorage.getItem('groupid')
+        const res=await axios.post('http://localhost:3000/chat/sendmsg',{message:message, gid:gid}, {headers: {'Authorization':token}})
         showOnScreen(res.data.name,res.data.message)
     }
     catch(err){
@@ -20,9 +21,13 @@ function showOnScreen(name,message){
     parentNode.innerHTML=parentNode.innerHTML+childHTML
 }
 
-//setInterval(()=>getMessages,1000)
+if(localStorage.getItem('groupid')==0){
+    window.addEventListener('DOMContentLoaded',getMessages)
+}
+else{
+    window.addEventListener('DOMContentLoaded',getGrpMessages)
 
-window.addEventListener('DOMContentLoaded',getMessages)
+}
 
 async function getMessages(){
     try{
@@ -55,8 +60,209 @@ async function getMessages(){
         let msg=mergedArray[i].message  
             showOnScreen(name,msg)
        }
+
+       const res2=await axios.get(`http://localhost:3000/group/getgrp`,{headers: {'Authorization':token}})
+
+       for(let i=0;i<res2.data.length;i++){
+         showGroup(res2.data[i].id,res2.data[i].name)
+       }
+
+       //const res3=await axios.get(`http://localhost:3000/group/getuser`)
+
     }
     catch(err){
         console.log(err)
     }
+}
+
+async function getGrpMessages(){
+    try{
+       const token=localStorage.getItem('token')
+       let gid=localStorage.getItem('groupid')
+
+       const res=await axios.get(`http://localhost:3000/chat/getgrpmsg/${gid}`,{headers: {'Authorization':token}})
+       
+       console.log(res.data)
+       
+       
+       for(let i=0;i<res.data.length;i++){
+        let name=res.data[i].name
+        let msg=res.data[i].message  
+            showOnScreen(name,msg)
+       }
+
+       const res2=await axios.get(`http://localhost:3000/group/getgrp`,{headers: {'Authorization':token}})
+
+       for(let i=0;i<res2.data.length;i++){
+         showGroup(res2.data[i].id,res2.data[i].name)
+       }
+
+       //const res3=await axios.get(`http://localhost:3000/group/getuser`)
+
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+
+
+document.getElementById('group').addEventListener('submit', createGroup)
+
+async function createGroup(e){
+    try{
+        e.preventDefault()
+        const grpname=document.getElementById('grpname').value
+        const token=localStorage.getItem('token')
+        const res=await axios.post('http://localhost:3000/group/createGroup',{name:grpname}, {headers: {'Authorization':token}})
+        if(res.status===200){
+            showGroup(res.data.id,res.data.name) 
+        }
+
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+function showGroup(id,name){
+    try{
+        const parent=document.getElementById('grps')
+        const childHTML=`<p id='gid_${id}'>${name} <input type="email" id="email_${id}">
+                         <button onclick="chat(${id})">Chat</button>
+                         <button onclick="addUser(${id})">Add User</button>
+                         <button onclick="showgrpusers(${id})">Show Users</button>
+                         <button onclick="deletegroup(${id})">Delete Group</button></p>`
+        parent.innerHTML+=childHTML
+
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+function chat(id){
+   localStorage.setItem('groupid',id)
+   document.querySelector('.container').innerHTML=""
+   document.getElementById('grps').innerHTML=""
+   getGrpMessages()
+}
+
+async function showgrpusers(gid){
+    try{
+      const res=await axios.get(`http://localhost:3000/group/getuser/${gid}`)
+      for(let i=0;i<res.data.length;i++){
+         showGUsers(gid,res.data[i])
+      }
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+function showGUsers(gid,user){
+    try{
+       const parent=document.getElementById(`gid_${gid}`)
+       const childHTML=`<li id="${user.userId}"> ${user.username} 
+                        <button onclick="removeuserfromgrp(${gid},${user.userId})">Remove</button>
+                        </li>`
+       parent.innerHTML=parent.innerHTML+childHTML
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+async function removeuserfromgrp(gid,uid){
+    try{
+       const res=await axios.delete(`http://localhost:3000/group/removeuser?groupid=${gid}&userid=${uid}`)
+       if(res.status==200){
+         removeuserfromUI(gid,uid)
+       }
+    }
+    catch(err){
+       console.log(err)
+    }
+}
+
+function removeuserfromUI(gid,uid){
+    try{
+      const parent=document.getElementById(`gid_${gid}`)
+      const child=document.getElementById(uid)
+      parent.removeChild(child)
+    }
+    catch(err){
+
+    }
+}
+
+async function deletegroup(id){
+    try{
+       const res=await axios.delete(`http://localhost:3000/group/deletegroup/${id}`)
+       if(res.status==200){
+        removegrpfromscreen(id)
+       }
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+function removegrpfromscreen(id){
+    try{
+      const parent=document.getElementById('grps')
+      const child=document.getElementById(`gid_${id}`)
+      console.log(parent,'............',child)
+      parent.removeChild(child)
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+async function addUser(gid){
+   try{
+     const token=localStorage.getItem('token')
+     const ipt=document.getElementById(`email_${gid}`).value
+
+     await axios.post('http://localhost:3000/group/addusertogroup',{ipt,gid})
+   }
+   catch(err){
+     console.log(err)
+   }
+}
+
+function showUsers(gid,users){
+   try{
+     const parent=document.getElementById(`gid_${gid}`)
+     const childHTML=`<li id='${users.id}'>${users.name}</li>
+                     <button onclick="deleteuserfromgroup(${users.id},${gid})">Delete</button>`
+     parent.innerHTML=parent.innerHTML+childHTML
+
+   }
+   catch(err){
+     console.log(err)
+   }
+}
+
+async function addusertogroup(uid,gid){
+    try{
+        let userdetails={
+            uid,
+            gid
+        }
+        const users=await axios.post('http://localhost:3000/group/addusertogroup', userdetails)
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+document.getElementById('exit').addEventListener('click',exit)
+
+function exit(){
+    localStorage.setItem('groupid',0)
+    document.querySelector('.container').innerHTML=""
+    document.getElementById('grps').innerHTML=""
+    getMessages()
 }

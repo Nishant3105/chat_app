@@ -1,73 +1,92 @@
-const bcrypt=require('bcrypt')
+const bcrypt = require('bcrypt')
 
-const jwt=require('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 
-const User=require('../model/user')
+const User = require('../model/user')
 
-function generateAccessToken(id){
-    return jwt.sign({userID:id},process.env.TOKEN_SECRET)
+const { Op } = require('sequelize')
+
+
+function generateAccessToken(id) {
+    return jwt.sign({ userID: id }, process.env.TOKEN_SECRET)
 }
 
-exports.addUser=async (req,res,next)=>{
-    try{
-       const {name, email, phone, password} =req.body
-       if(name=="" || email=="" || phone=="" || password==""){
-           res.status(500).json({message: 'please fill all the details'})
-       }
-       
-       let result=await User.findOne({where: {email:email}})
-       if(result){
-           res.status(200).json({message: 'User already exists! Please login.'})
-        }    
-       else{
-           bcrypt.hash(password,10,(err,hash)=>{
-               User.create({
-                   name,
-                   email,
-                   phone,
-                   password:hash
-               })
-               res.status(201).json({message:'User created successfully!'})
+exports.addUser = async (req, res, next) => {
+    try {
+        const { name, email, phone, password } = req.body
+        if (name == "" || email == "" || phone == "" || password == "") {
+            res.status(500).json({ message: 'please fill all the details' })
+        }
+
+        let result = await User.findOne({ where: { email: email } })
+        if (result) {
+            res.status(200).json({ message: 'User already exists! Please login.' })
+        }
+        else {
+            bcrypt.hash(password, 10, (err, hash) => {
+                User.create({
+                    name,
+                    email,
+                    phone,
+                    password: hash
+                })
+                res.status(201).json({ message: 'User created successfully!' })
             })
         }
     }
-    catch(err){
+    catch (err) {
         console.log(err)
-        res.status(500).json({message: 'Something went wrong!'})
+        res.status(500).json({ message: 'Something went wrong!' })
     }
 }
 
-exports.login=async (req,res,next)=>{
-    try{
-       const {email, password}=req.body
-       if(email=='' || password==''){
-        res.status(400).json({message:'Please enter full details'})
-       }
-       const user=await User.findOne({where: {email:email}})
-       if(user){
-        bcrypt.compare(password, user.dataValues.password, (err, response) => {
-            if (err) {
-                throw new Error('Something went wrong!')
-            }
-            if (response === true) {
-                res.status(200).json({ 
-                    success: true, 
-                    message: "User logged in successfully",
-                    token: generateAccessToken(user.dataValues.id) 
-                })
-            }
-            else {
-                res.status(401).json({ success: true, message: "Password is incorrect,User not Authorized" })
-            }
-        })
-       }
-       else{
-        res.status(404).json({message: 'User not found. New User? Please Signup!'})
-       }
+exports.login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body
+        if (email == '' || password == '') {
+            res.status(400).json({ message: 'Please enter full details' })
+        }
+        const user = await User.findOne({ where: { email: email } })
+        if (user) {
+            bcrypt.compare(password, user.dataValues.password, (err, response) => {
+                if (err) {
+                    throw new Error('Something went wrong!')
+                }
+                if (response === true) {
+                    res.status(200).json({
+                        success: true,
+                        message: "User logged in successfully",
+                        token: generateAccessToken(user.dataValues.id)
+                    })
+                }
+                else {
+                    res.status(401).json({ success: true, message: "Password is incorrect,User not Authorized" })
+                }
+            })
+        }
+        else {
+            res.status(404).json({ message: 'User not found. New User? Please Signup!' })
+        }
 
     }
-    catch(err){
-        res.status(500).json({succes:false, err:err})
+    catch (err) {
+        res.status(500).json({ succes: false, err: err })
+    }
+}
+
+exports.getUsers = async (req, res, next) => {
+    try {
+        console.log('reached here')
+        const users = await User.findAll({
+            attributes: ['id', 'name'],
+            where: {
+                id: { [Op.ne]: req.user.id }
+            }
+        })
+        res.status(200).json(users)
+    }
+    catch (err) {
+        console.log(err)
     }
 }
 

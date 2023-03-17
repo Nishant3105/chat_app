@@ -24,12 +24,19 @@
     border-radius: 10px;
 }
 .container{
-    margin:auto;
+    /* margin:auto;
     height:80vh;
     background-color: yellow;
     padding:23px;
-    overflow-y: auto;
+    overflow-y: auto; */
     /* margin-bottom:13px; */
+    margin: 8px;
+    height: 35vh;
+    background-color: yellow;
+    padding: 133px;
+    overflow-y: auto;
+    float: right;
+    width: 75vh;
 }
 #send{
     display:block;

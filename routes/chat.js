@@ -10,4 +10,6 @@ routes.post('/sendmsg', userauth.authentication, chatController.postMessage)
 
 routes.get('/getmsg/:id', userauth.authentication, chatController.getMessage)
 
+routes.get('/getgrpmsg/:gid', userauth.authentication, chatController.getGrpMessage)
+
 module.exports=routes

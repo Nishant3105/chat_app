@@ -9,15 +9,27 @@
 </head>
 <body>
     <h1 id="h1">Chat App</h1>
-    <div class="container">
-        <div class="your-message">Your Dummy text</div>
-        <div class="others-message">Other's Dummy text</div>
+    <div>
+        <form id="group">
+            <input type="text" id="grpname">
+            <button type="submit">Create Group</button>
+        </form>
+        <button type="click" id="exit">exit</button>
+    </div>
+    <div id="grps">
+
     </div>
     <div>
-        <form id="send">
-            <input type="text" id="inpsend">
-            <button type="submit">Send</button>
-        </form>
+        <div class="container">
+            <div class="your-message"></div>
+            <div class="others-message"></div>
+        </div>
+        <div>
+            <form id="send">
+                <input type="text" id="inpsend">
+                <button type="submit">Send</button>
+            </form>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.3/axios.min.js"></script>
     <script src="chat.js"></script>
