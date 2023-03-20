@@ -7,7 +7,7 @@ exports.authentication=(req,res,next)=>{
         const token=req.header('Authorization')
         //console.log(token)
         const user=jwt.verify(token,process.env.TOKEN_SECRET)
-        //console.log(user.userID)
+        // console.log(user.userID)
         User.findByPk(user.userID).then(user=>{
           req.user=user
           next()

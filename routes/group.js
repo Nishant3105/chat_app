@@ -14,9 +14,9 @@ routes.post('/addusertogroup', groupController.addusertogroup)
 
 routes.get('/getuser/:gid', groupController.getGrpUsers)
 
-routes.delete('/removeuser', groupController.removeUserFromGroup)
+routes.delete('/removeuser', userauth.authentication, groupController.removeUserFromGroup)
 
-routes.delete('/deletegroup/:id', groupController.deleteGroup)
+routes.delete('/deletegroup/:id', userauth.authentication, groupController.deleteGroup)
 
 
 module.exports=routes

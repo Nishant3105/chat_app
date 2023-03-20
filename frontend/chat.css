@@ -30,15 +30,16 @@
     padding:23px;
     overflow-y: auto; */
     /* margin-bottom:13px; */
+    /* display:inline-flex; */
     margin: 8px;
     height: 35vh;
     background-color: yellow;
     padding: 133px;
     overflow-y: auto;
-    float: right;
     width: 75vh;
+    float: right;
 }
-#send{
+.send{
     display:block;
     margin:auto;
     width:92%;

@@ -12,6 +12,10 @@ const UserGroup=sequelize.define('usergroup',{
     username: {
         type: Sequelize.STRING,
         allowNull:false
+    },
+    groupname: {
+        type: Sequelize.STRING,
+        allowNull:false
     }
 })
 

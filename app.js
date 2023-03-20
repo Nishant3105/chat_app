@@ -1,4 +1,5 @@
 const express=require('express')
+const path=require('path')
 
 const bodyParser=require('body-parser')
 const cors=require('cors')
@@ -10,6 +11,7 @@ const sequelize=require('./util/database')
 const userRoutes=require('./routes/user')
 const chatRoutes=require('./routes/chat')
 const groupRoutes=require('./routes/group')
+const mediaRoutes=require('./routes/media')
 
 const User=require('./model/user')
 const Chat=require('./model/chat')
@@ -23,13 +25,21 @@ app.use(cors(
         origin: "http://127.0.0.1:5500"
     }
 ))
+
 app.use(bodyParser.json())
+
 
 app.use('/user',userRoutes)
 
 app.use('/chat',chatRoutes)
 
 app.use('/group',groupRoutes)
+
+app.use('/media',mediaRoutes)
+
+app.use((req,res,next)=>{
+    res.sendFile(path.join(__dirname,`frontend/${req.url}`))
+})
 
 User.hasMany(Chat)
 Chat.belongsTo(User)
@@ -42,5 +52,5 @@ Chat.belongsTo(Group)
 
 sequelize
  .sync()
- .then(()=>app.listen(3000))
+ .then(()=>app.listen(process.env.PORT || 3000))
  .catch(err=>console.log(err))

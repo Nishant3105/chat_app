@@ -16,7 +16,7 @@ async function sendMessage(e){
 }
 
 function showOnScreen(name,message){
-    parentNode=document.querySelector('.container')
+    parentNode=document.getElementById('message')
     childHTML=`<div class="your-message">${name} : ${message}</div>`
     parentNode.innerHTML=parentNode.innerHTML+childHTML
 }
@@ -64,7 +64,7 @@ async function getMessages(){
        const res2=await axios.get(`http://localhost:3000/group/getgrp`,{headers: {'Authorization':token}})
 
        for(let i=0;i<res2.data.length;i++){
-         showGroup(res2.data[i].id,res2.data[i].name)
+         showGroup(res2.data[i].groupId,res2.data[i].groupname)
        }
 
        //const res3=await axios.get(`http://localhost:3000/group/getuser`)
@@ -94,7 +94,7 @@ async function getGrpMessages(){
        const res2=await axios.get(`http://localhost:3000/group/getgrp`,{headers: {'Authorization':token}})
 
        for(let i=0;i<res2.data.length;i++){
-         showGroup(res2.data[i].id,res2.data[i].name)
+         showGroup(res2.data[i].groupId,res2.data[i].groupname)
        }
 
        //const res3=await axios.get(`http://localhost:3000/group/getuser`)
@@ -118,7 +118,7 @@ async function createGroup(e){
         if(res.status===200){
             showGroup(res.data.id,res.data.name) 
         }
-
+        
     }
     catch(err){
         console.log(err)
@@ -129,8 +129,8 @@ function showGroup(id,name){
     try{
         const parent=document.getElementById('grps')
         const childHTML=`<p id='gid_${id}'>${name} <input type="email" id="email_${id}">
+                         <button onclick="addUser(${id},'${name}')">Add User</button>
                          <button onclick="chat(${id})">Chat</button>
-                         <button onclick="addUser(${id})">Add User</button>
                          <button onclick="showgrpusers(${id})">Show Users</button>
                          <button onclick="deletegroup(${id})">Delete Group</button></p>`
         parent.innerHTML+=childHTML
@@ -143,7 +143,7 @@ function showGroup(id,name){
 
 function chat(id){
    localStorage.setItem('groupid',id)
-   document.querySelector('.container').innerHTML=""
+   document.getElementById('message').innerHTML=""
    document.getElementById('grps').innerHTML=""
    getGrpMessages()
 }
@@ -151,9 +151,11 @@ function chat(id){
 async function showgrpusers(gid){
     try{
       const res=await axios.get(`http://localhost:3000/group/getuser/${gid}`)
-      for(let i=0;i<res.data.length;i++){
-         showGUsers(gid,res.data[i])
+      
+      for(let i=0;i<res.data.length;i++){ 
+        showGUsers(gid,res.data[i])
       }
+      
     }
     catch(err){
         console.log(err)
@@ -175,7 +177,11 @@ function showGUsers(gid,user){
 
 async function removeuserfromgrp(gid,uid){
     try{
-       const res=await axios.delete(`http://localhost:3000/group/removeuser?groupid=${gid}&userid=${uid}`)
+       const token=localStorage.getItem('token')
+       const res=await axios.delete(`http://localhost:3000/group/removeuser?groupid=${gid}&&userid=${uid}`,{headers: {'Authorization':token}})
+       if(res.status==201){
+         alert(res.data)
+       }
        if(res.status==200){
          removeuserfromUI(gid,uid)
        }
@@ -198,7 +204,8 @@ function removeuserfromUI(gid,uid){
 
 async function deletegroup(id){
     try{
-       const res=await axios.delete(`http://localhost:3000/group/deletegroup/${id}`)
+       const token=localStorage.getItem('token')
+       const res=await axios.delete(`http://localhost:3000/group/deletegroup/${id}`,{headers: {'Authorization':token}})
        if(res.status==200){
         removegrpfromscreen(id)
        }
@@ -220,15 +227,19 @@ function removegrpfromscreen(id){
     }
 }
 
-async function addUser(gid){
+async function addUser(gid,gname){
    try{
+     console.log(gid,gname)
      const token=localStorage.getItem('token')
      const ipt=document.getElementById(`email_${gid}`).value
 
-     await axios.post('http://localhost:3000/group/addusertogroup',{ipt,gid})
-   }
-   catch(err){
-     console.log(err)
+     const res=await axios.post('http://localhost:3000/group/addusertogroup',{ipt,gid,gname})
+     if(res.status===201){
+        alert(res.data)
+      }
+    }
+    catch(err){
+        console.log(err)
    }
 }
 
@@ -262,7 +273,23 @@ document.getElementById('exit').addEventListener('click',exit)
 
 function exit(){
     localStorage.setItem('groupid',0)
-    document.querySelector('.container').innerHTML=""
+    document.getElementById('message').innerHTML=""
     document.getElementById('grps').innerHTML=""
     getMessages()
+}
+
+document.getElementById('send2').addEventListener('submit',sendFile)
+
+async function sendFile(e){
+    e.preventDefault()
+    const groupid=localStorage.getItem("groupid")
+    const file=document.getElementById('file')
+    const fileData=file.files[0];
+    console.log(file)
+    const formData=new FormData();
+    formData.append('file',fileData);
+    console.log(formData);
+
+    const response=await axios.post("http://localhost:3000/media/sendmedia",{formData,groupid},{headers:{"authentication":token,'Content-Type':'multipart/form-data'}})
+    console.log(response)
 }
